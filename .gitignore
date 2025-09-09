@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/project.xcworkspace
+*.xcodeproj/xcuserdata
+*.xcworkspace/xcuserdata
+
+# Swift Package Manager
+/.build
+/.swiftpm
+Package.resolved
+
+# Carthage
+/Carthage
+CopyCarthageFrameworks
+
+# Pods
+/Pods
