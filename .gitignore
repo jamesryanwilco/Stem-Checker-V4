@@ -6,18 +6,29 @@
 # Xcode
 build/
 DerivedData/
-*.xcodeproj/project.xcworkspace
-*.xcodeproj/xcuserdata
-*.xcworkspace/xcuserdata
+*.xcodeproj/project.xcworkspace/xcshareddata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcshareddata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
 
 # Swift Package Manager
-/.build
-/.swiftpm
-Package.resolved
+.build/
+.swiftpm/
 
 # Carthage
-/Carthage
-CopyCarthageFrameworks
+Carthage/Build
+Carthage/Checkouts
 
-# Pods
-/Pods
+# CocoaPods
+Pods/
+
+# Fastlane
+fastlane/report.xml
+fastlane/test_output
+fastlane/logs
+
+# IDE/Editor specific
+.idea/
+.vscode/

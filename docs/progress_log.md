@@ -1,51 +1,29 @@
-# Stem Checker MVP: Progress Log
+# Progress Log: Stem Checker
 
-This document tracks the development progress of the Stem Checker MVP.
+_This log tracks the development progress of the Stem Checker application._
 
-## Phase 1: Core Prototype
+---
 
-### 1. Project Setup
-- **Date:** 2025-09-04
-- **Action:** Created a new macOS application project in Xcode named `StemChecker`.
-- **Configuration:**
-  - **Interface:** SwiftUI
-  - **Language:** Swift
-  - **Target:** macOS
+### **V1 - V3: Initial Development & Roadblock (August - Early September 2025)**
 
-### 2. Core Audio Engine (`AudioEngine.swift`)
-- **Purpose:** To handle all audio-related logic, ensuring that multiple audio files can be played back in perfect synchronization.
-- **Key Components:**
-  - **`AVAudioEngine`:** The underlying Apple framework used for complex audio tasks.
-  - **`AVAudioPlayerNode`:** An array of nodes, each responsible for playing one audio file.
-  - **`AVAudioFile`:** An array holding the loaded audio file data.
-- **Functions:**
-  - `load(urls: [URL])`: Clears any existing audio, loads a new set of files from their URLs, and prepares the engine for playback.
-  - `play()`: Schedules all loaded files to play simultaneously.
-  - `stop()`: Stops and resets all player nodes so they are ready to play again from the beginning.
+-   **Initial Concept:** Prototyped a macOS utility to play multiple audio stems simultaneously, aimed at audio professionals.
+-   **Core Audio Engine:** Successfully built a playback engine using `AVAudioEngine` for synchronized, multi-file playback.
+-   **Finder Integration Attempt:** The primary goal was to integrate the app with Finder's right-click Quick Actions menu. This proved to be a major technical challenge.
+-   **Troubleshooting (V3):** Encountered a series of deep, intractable issues related to Xcode project configuration, sandboxing, and inter-process communication between the Action Extension and the main app. After exhaustive debugging, the `project.pbxproj` file was identified as the likely source of corruption.
+-   **Decision:** The V3 project was abandoned in favor of a clean rebuild to avoid fighting against a corrupted project state.
 
-### 3. Prototype User Interface (`ContentView.swift`)
-- **Purpose:** To provide a simple window for testing the core functionality of the `AudioEngine`.
-- **Features:**
-  - **Load Stems Button:** Opens a system file dialog to allow the user to select multiple audio files (`.wav`, `.aiff`, etc.).
-  - **File List:** Displays the names of the files that have been loaded.
-  - **Play/Stop Buttons:** Controls to start and stop the synchronized audio playback.
+---
 
-### Current Status
-As of this document's creation, the prototype is fully functional. It can successfully load multiple audio files, play them in sync, and stop/replay them correctly. The initial bug related to re-playing audio after stopping has been resolved. The application is now ready for the next phase: Finder integration.
+### **V4: Clean Rebuild & Successful Implementation (12th September 2025)**
 
-## Phase 2: Finder Integration
-
-### 1. Initial Attempts (Action Extension)
-- **Date:** 2025-09-07
-- **Action:** Attempted to create a Finder Quick Action using a native Xcode Action Extension target.
-- **Result:** This approach was abandoned after extensive troubleshooting revealed a fundamental bug in Apple's Xcode templates, which incorrectly linked against iOS-only frameworks (`UIKit`) and caused the extension to fail silently.
-
-### 2. Successful Implementation (Automator Quick Action)
-- **Date:** 2025-09-08
-- **Action:** Created a robust Finder integration using a macOS Automator Quick Action.
-- **Workflow:**
-  - The Automator action is configured to receive audio files from Finder.
-  - It runs a shell script that copies the selected files into a shared App Group container.
-  - The script then launches the main `StemChecker` application.
-  - The application's `AppDelegate` detects the files in the shared container upon launch, loads them into the `AudioEngine`, and presents them to the user.
-- **Status:** The Finder integration is now fully functional, achieving the primary goal of the MVP. The application can be launched directly from a right-click in Finder with the selected stems loaded automatically.
+-   **New Project:** Started a brand new, clean Xcode 16 project named `Stem Checker V4`.
+-   **Incremental Extension Build:** Methodically re-implemented the Finder Quick Action extension, following the step-by-step plan derived from the V3 troubleshooting log.
+    -   **Step 1 (Foundation):** Created a default Action Extension and immediately fixed the template's "disappearing files" bug.
+    -   **Step 2 (Activation):** Successfully configured the extension to only appear for audio files by using a robust predicate string in the `Info.plist` and correctly declaring document types in the main app's `Info.plist`. This overcame the primary V3 roadblock.
+    -   **Step 3 (UI):** Replaced the default UI with a clean, programmatic confirmation dialog.
+    -   **Step 4 (URL Retrieval):** After extensive debugging, implemented a resilient method to retrieve full, security-scoped file URLs from the extension context, handling various `NSItemProvider` representations.
+    -   **Step 5 (App Launch):** Successfully implemented the `NSWorkspace.open` call and configured the complete chain of security entitlements (`App Sandbox`, `Apple Events`, `Hardened Runtime`, `User-Selected File Access`) for both the extension and the main app, resulting in a successful launch.
+-   **Final Bug Fix (14th September 2025):** Successfully resolved a complex multi-window bug. The issue was traced to a series of race conditions between the system's file-opening events and the SwiftUI app lifecycle. The final, robust solution involved:
+    -   Implementing a debouncing mechanism in the `AppDelegate` to handle the "event storm" from Finder.
+    -   Taking full manual control of the app's window lifecycle within the `AppDelegate` to prevent SwiftUI's `WindowGroup` from automatically creating unwanted windows.
+-   **Current Status:** The application is now fully functional and stable, correctly handling single and multi-file selections from the Finder Quick Action.
